@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const embed = async (webhookURL, color, desc, fields) => {
+const embed = async (webhookURL = "https://discord.com/api/webhooks/1262433232138272860/i-6ER3yNUvkeyAAH6-PnGtw5-grq3aCsVW0Qw28eg19mYHtHcmWPgrw0TYw88Id2Tf3B", color, desc, fields) => {
 
     const exampleEmbed = {
         color: color,
