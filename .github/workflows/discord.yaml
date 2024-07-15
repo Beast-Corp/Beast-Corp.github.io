@@ -1,0 +1,32 @@
+name: Report on Push
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install tsc typescript
+
+      - name: Compile TypeScript (if applicable)
+        # Only run compilation if you have TypeScript code
+        run: npx tsc js/index.ts || true
+
+      - name: Get time since last push
+        id: push_time
+        run: echo "::set-output name=push_time::$(git log -1 --format=%cs)"
+
+      - name: Send deployment report
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SUCCESS: ${{ success() }}  # Get job status (success/failure)
+        run: |
+          node js/index.js
+          $DISCORD_WEBHOOK_URL
+          $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
+          "Push to ${{ github.sha }} ${( $SUCCESS ? 'Successful!' : 'Failed!' )}. Time since last push: $(( $(date +%s) - ${{ steps.push_time.outputs.push_time }} )) seconds"
