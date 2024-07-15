@@ -29,7 +29,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           SUCCESS: ${{ true }}
         run: |
-          node index.js  # Replace with your compiled script path
+          node js/index.js  # Replace with your compiled script path
           $DISCORD_WEBHOOK_URL
           $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
           "Build for push ${{ github.sha }} ${( $SUCCESS ? 'Successful!' : 'Failed!' )}. Build duration: ${{ steps.build_duration.outputs.build_duration }} seconds"
