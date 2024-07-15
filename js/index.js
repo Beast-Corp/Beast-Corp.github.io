@@ -1,4 +1,6 @@
-const embed = (webhookURL, color, desc, fields) => {
+const axios = require("axios");
+
+const embed = async (webhookURL, color, desc, fields) => {
 
     const exampleEmbed = {
         color: color,
@@ -14,24 +16,14 @@ const embed = (webhookURL, color, desc, fields) => {
         timestamp: new Date().toISOString(),
     };
 
-    fetch(webhookURL, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        embeds: [exampleEmbed]
-    })
-    })
-    .then(response => {
-    if (response.ok) {
+    await axios.post(webhookURL, {
+       body: {
+           embeds: [exampleEmbed]
+       }
+    }).then(() => {
         console.log('Embed sent successfully!');
-    } else {
-        console.error('Failed to send embed:', response.status);
-    }
-    })
-    .catch(error => {
-    console.error('Error sending embed:', error);
+    }).catch(err => {
+        console.error(err);
     });
 };
 
