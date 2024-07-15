@@ -5,28 +5,32 @@ on:
     branches: [ main ]
 
 jobs:
-  report:
+  check-status:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Get previous job status
+        run: echo "::set-output name=job_status::${{ job.status }}"
 
-      - name: Install dependencies
-        run: npm install tsc typescript
+  report:
+    runs-on: ubuntu-latest
+    needs: check-status  # This job depends on the previous one
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Compile TypeScript (if applicable)
-        # Only run compilation if you have TypeScript code
-        run: npx tsc js/index.ts || true
-
-      - name: Get time since last push
-        id: push_time
-        run: echo "::set-output name=push_time::$(git log -1 --format=%cs)"
+      - name: Get previous job status
+        uses: actions/github-script@v6  # Use a dedicated script action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            core.setOutput('job_status', github.workflows['check-status'].jobs['check-status'].steps[0].outputs.job_status);
 
       - name: Send deployment report
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          SUCCESS: ${{ success() }}  # Get job status (success/failure)
+          JOB_STATUS: ${{ steps.get-status.outputs.job_status }}
         run: |
-          node js/index.js
+          node index.js  # Replace with your compiled script path
           $DISCORD_WEBHOOK_URL
-          $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
-          "Push to ${{ github.sha }} ${( $SUCCESS ? 'Successful!' : 'Failed!' )}. Time since last push: $(( $(date +%s) - ${{ steps.push_time.outputs.push_time }} )) seconds"
+          $(( $JOB_STATUS == 'success' ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
+          "Deployment for commit ${{ github.sha }} - $JOB_STATUS"
