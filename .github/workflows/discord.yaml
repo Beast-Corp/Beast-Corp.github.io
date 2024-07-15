@@ -32,6 +32,7 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           SUCCESS: ${{ true }}
         run: |
+          echo "$DISCORD_WEBHOOK_URL"
           node js/index.js  # Replace with your compiled script path
           $DISCORD_WEBHOOK_URL
           $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
