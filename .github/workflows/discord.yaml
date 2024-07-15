@@ -1,44 +1,36 @@
-name: Report on Push
+name: Report with Local Build Duration
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  check-status:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Get previous job status
-        run: echo "::set-output name=job_status::${{ job.status }}"
-
   report:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get previous job status (if available)
-        uses: actions/github-script@v6  # Use a dedicated script action
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let jobStatus = '';
-            if (github.workflows['check-status'] && github.workflows['check-status'].jobs['check-status']) {
-              jobStatus = github.workflows['check-status'].jobs['check-status'].steps[0].outputs.job_status;
-            }
-            core.setOutput('job_status', jobStatus);
+      - name: Install dependencies
+        run: npm install tsc typescript
+
+      - name: Compile TypeScript (if applicable)
+        # Only run compilation if you have TypeScript code
+        run: npx tsc js/index.ts || true
+
+      - name: Build your site (replace with your build command)
+        run: |
+          BUILD_START_TIME=$(date +%s)
+          npm run build  # Replace with your build script
+          BUILD_END_TIME=$(date +%s)
+          BUILD_DURATION=$((BUILD_END_TIME - BUILD_START_TIME))
+          echo "::set-output name=build_duration::$BUILD_DURATION"
 
       - name: Send deployment report
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          JOB_STATUS: ${{ steps.get-status.outputs.job_status }}
+          SUCCESS: ${{ true }}
         run: |
-          # Handle the case where job_status might be undefined
-          if [[ -z "$JOB_STATUS" ]]; then
-            echo "Previous job status unavailable. Skipping report."
-            exit 0
-          fi
           node index.js  # Replace with your compiled script path
           $DISCORD_WEBHOOK_URL
-          $(( $JOB_STATUS == 'success' ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
-          "Deployment for commit ${{ github.sha }} - $JOB_STATUS"
+          $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
+          "Build for push ${{ github.sha }} ${( $SUCCESS ? 'Successful!' : 'Failed!' )}. Build duration: ${{ steps.build_duration.outputs.build_duration }} seconds"
