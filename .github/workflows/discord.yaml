@@ -11,7 +11,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install 
+
+      - name: Install Axios
+        run: yarn add axios
 
       - name: Compile TypeScript (if applicable)
         # Only run compilation if you have TypeScript code
