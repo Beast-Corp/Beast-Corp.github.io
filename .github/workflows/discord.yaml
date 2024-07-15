@@ -33,6 +33,6 @@ jobs:
           SUCCESS: ${{ true }}
         run: |
           node js/index.js  # Replace with your compiled script path
-          "https://discord.com/api/webhooks/1262368816927866890/h6IDIl1ndwyGEO122GeBAo_YP1tk5E4qEhupXwKHqPczmX8QnpKGU9SzqvbIFkPYBaKa"
+          "https://discord.com/api/webhooks/1262433232138272860/i-6ER3yNUvkeyAAH6-PnGtw5-grq3aCsVW0Qw28eg19mYHtHcmWPgrw0TYw88Id2Tf3B"
           $(( $SUCCESS ? 0x33cc33 : 0xcccc00 ))  # Green for success, red for failure
           "Build for push ${{ github.sha }} ${( $SUCCESS ? 'Successful!' : 'Failed!' )}. Build duration: ${{ steps.build_duration.outputs.build_duration }} seconds"
