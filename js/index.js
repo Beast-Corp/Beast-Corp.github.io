@@ -1,12 +1,4 @@
-import "@types/node";
-
-interface FieldValues {
-    name: string;
-    value: string;
-    inline?: boolean;
-}
-
-const embed = (webhookURL: string, color: number, desc: string, fields?: FieldValues[]) => {
+const embed = (webhookURL, color, desc, fields) => {
 
     const exampleEmbed = {
         color: color,
